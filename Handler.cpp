@@ -62,4 +62,4 @@ void Handler::close(){
     DESTINY.close();
     delete[] auxBuffer;
     delete[] realBuffer;
-}
+} 

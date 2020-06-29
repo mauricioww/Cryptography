@@ -1,6 +1,6 @@
 .PHONY: clean	
 
-all: main
+all: main clean
 
 main: main.o AES.o Handler.o
 	g++  -std=c++11 main.o AES.o Handler.o -o main
@@ -12,9 +12,12 @@ Handler.o: Handler.cpp Handler.h
 	g++ -c Handler.cpp
 
 main.o: main.cpp
-	g++ -c main.cpp 
+	g++ -c main.cpp
+	
+# Hello:
+# 	javac HelloJNI.java
 
-.PRECIOUS: %.o
+.PRECIOUS: *.o
 
 clean:
-	rm -f *.o
+	rm -f *.o 

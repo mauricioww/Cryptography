@@ -186,15 +186,6 @@ void AES::rotWord(uint8_t w[4]){
     w[0] = w[1]; w[1] = w[2]; w[2] = w[3]; w[3] = t;
 }
 
-
-void printCol(unsigned char *str){
-    for(int i = 0; i < 4; i++)
-        // printf("%c ", in[i]);
-        printf("0x%02x ", str[i]);
-    puts("");
-    
-}
-
 void AES::keyExpansion(uint8_t *key/*[keyLen]*/, uint8_t *keyExpanded/*[4 *  Nb * (Nr+1)]*/){
     uint8_t temp[4];
     int RCON = 1, bytesGenerated = 4 * Nk;
@@ -212,24 +203,6 @@ void AES::keyExpansion(uint8_t *key/*[keyLen]*/, uint8_t *keyExpanded/*[4 *  Nb 
             keyExpanded[bytesGenerated] = keyExpanded[bytesGenerated - 4 * Nk] ^ temp[j];
             bytesGenerated++;
         }
-    }
-}
-
-void printA(uint8_t **arr){
-    for(int i = 0; i < 4; i++){
-        for(int j = 0; j < 4; j++){
-            // cout << (int)arr[i][j] << " ";
-            printf("0x%02x,  ", arr[i][j]);
-        }
-        puts("");
-    }    
-    puts("");
-}
-
-void printKey(uint8_t *key, int len){
-    for(int i = 0; i < len; i++){
-        printf("0x%02x ", key[i]);
-        if(i%4 == 0) puts("");
     }
 }
 
@@ -278,18 +251,11 @@ void AES::Decrypt(uint8_t *in, uint8_t *out, uint8_t *key){
 
     addRoundKey(state, keyExpanded + Nr * 4 * Nb); // First round
 
-    // printA(state);
-
-
     for(int i = Nr - 1; i >= 1; i--){ // From Nr until 1
         invSubBytes(state);
         invShiftRows(state);
         addRoundKey(state, keyExpanded + i * 4 * Nb);
-        // printA(state);
-        // cout << "\n" <<endl;
         invMixColumns(state);
-        // printA(state);
-
     }
 
     invSubBytes(state); // Final round
@@ -305,20 +271,9 @@ void AES::Decrypt(uint8_t *in, uint8_t *out, uint8_t *key){
     delete[] state;
 }
 
-
-void printStr1(uint8_t *str){
-    for(int i = 0; i < 16; i++)
-        // printf("%c ", in[i]);
-        printf("0x%02x ", str[i]);
-    puts("");
-}
-
-// sizeof(in) = len ?
 uint8_t* AES::Encrypt_ECB(uint8_t *plainT, uint8_t *key, uint32_t len){
     uint32_t real = padding(len);
-    // cout << "real = " << real << "input " << len << endl;
     uint8_t *padding = padInput(plainT, len, real);
-    // printStr1(padding);
     uint8_t *cipherT = new uint8_t[real];
     for(uint32_t i = 0; i < real; i += 16){
         Encrypt(padding + i, cipherT + i, key);
@@ -334,7 +289,6 @@ uint8_t* AES::Decrypt_ECB(uint8_t *cipherT, uint8_t *key, uint32_t len){
     }
     return plainT;
 }
-
 
 uint8_t* AES::Encrypt_CBC(uint8_t *plainT, uint8_t *key, uint8_t *iv, uint32_t len){
     uint32_t real = padding(len);
@@ -358,14 +312,11 @@ uint8_t* AES::Decrypt_CBC(uint8_t *cipherT, uint8_t *key, uint8_t *iv, uint32_t 
     for(uint32_t i = 0; i < len; i += 16){
         Decrypt(cipherT + i, plainT + i, key);
         xorChunks(plainT + i, aux, 17);
-        printStr1(plainT);
-
         memcpy(aux, cipherT + i, 16);
     }
     delete[] aux;
     return plainT;
 }
-
 
 uint8_t* AES::Encrypt_CFB(uint8_t *plainT, uint8_t *key, uint8_t *iv, uint32_t len){
     uint32_t real = padding(len);
