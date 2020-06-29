@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <cstdint>
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 #include <fstream>
 
@@ -17,6 +17,7 @@ class Handler{
         uint32_t length;
         uint32_t seen;
         uint8_t chunk;
+        uint8_t offset;
         uint8_t *realBuffer;
         char *auxBuffer;
     public:
@@ -24,15 +25,16 @@ class Handler{
         uint8_t *getBuffer();
 
         char *getBuffer2();
-
+        uint8_t getLength();
         uint8_t getChunk();
         bool canExtract();
 
         void extract();
         // void drop(uint8_t *, uint8_t);
         void drop(char *, uint8_t);
-
+        void setOffset(uint8_t);
         void drop2(uint8_t *, uint8_t);
+        void clear(uint32_t);
         void close();
 };
 
