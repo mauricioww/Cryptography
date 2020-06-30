@@ -3,7 +3,7 @@ PATH2 = -I"/usr/lib/jvm/java-14-openjdk/include/linux"
 
 .PHONY: clean	
 
-all: main javaDriver.h javaDriver.class libmiddleware.so plain.class clean
+all: main javaDriver.h javaDriver.class libmiddleware.so #plain.class
 
 main: main.o AES.o Handler.o
 	g++  -std=c++11 main.o AES.o Handler.o -o main
@@ -23,11 +23,11 @@ javaDriver.h: javaDriver.java
 javaDriver.class:
 	javac javaDriver.java
 
-libmiddleware.so: c++driver.cpp Handler.cpp AES.cpp javaDriver.h
+libmiddleware.so: c++driver.cpp Handler.cpp AES.cpp javaDriver.h Menu.h
 	g++ -Wall -fPIC $(PATH1) $(PATH2) $< Handler.cpp AES.cpp -shared -o $@
 
-plain.class: plain.java
-	javac plain.java
+# plain.class: plain.java
+# 	javac plain.java
 
 .PRECIOUS: *.o
 

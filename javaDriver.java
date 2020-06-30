@@ -10,10 +10,10 @@ public class javaDriver{
  
     public static void main(String[] args) {
         if(args.length != 2){
-            System.out.println("Bad usage! sourceFile.class destinyFile.class");
+            System.out.println("Bad usage! sourceFile.ext destinyFile ext");
             System.exit(1);
         }
-        String result = new javaDriver().Compute(args[0], args[1]);  // Create an instance and invoke the native method
+        String result = new javaDriver().Compute(args[0], args[1]);
         System.out.println("Message from C++: " + result);
     }
 }
