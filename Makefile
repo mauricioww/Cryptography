@@ -1,6 +1,9 @@
+PATH1 = -I"/usr/lib/jvm/java-14-openjdk/include"
+PATH2 = -I"/usr/lib/jvm/java-14-openjdk/include/linux"
+
 .PHONY: clean	
 
-all: main clean
+all: main javaDriver.h javaDriver.class libmiddleware.so plain.class clean
 
 main: main.o AES.o Handler.o
 	g++  -std=c++11 main.o AES.o Handler.o -o main
@@ -14,10 +17,19 @@ Handler.o: Handler.cpp Handler.h
 main.o: main.cpp
 	g++ -c main.cpp
 	
-# Hello:
-# 	javac HelloJNI.java
+javaDriver.h: javaDriver.java
+	javac -h . javaDriver.java
+
+javaDriver.class:
+	javac javaDriver.java
+
+libmiddleware.so: c++driver.cpp Handler.cpp AES.cpp javaDriver.h
+	g++ -Wall -fPIC $(PATH1) $(PATH2) $< Handler.cpp AES.cpp -shared -o $@
+
+plain.class: plain.java
+	javac plain.java
 
 .PRECIOUS: *.o
 
 clean:
-	rm -f *.o 
+	rm -f *.o
