@@ -1,5 +1,3 @@
-// -Djava.library.path=.
-
 public class javaDriver{  
 
    static {

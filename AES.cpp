@@ -9,6 +9,7 @@ AES::AES(int len = 128){
         cout << "KEY LENGTH ERROR: 128, 192, 256." << endl;
         exit(-1);
     }
+    printf("AES %d\n", len);
     keyLen = len / 8;
     Nk = len / 32;
     Nr += Nk;
@@ -413,6 +414,6 @@ uint8_t* AES::Decrypt_CTR(uint8_t *cipherT, uint8_t *key, uint8_t *ctr, uint32_t
         xorChunks(plainT + i, cipherT + i, 16);
         increment(auxCTR);
     }
-    delete[] auxCTR; delete[] encryptedCTR;
+    delete[] auxCTR; delete[] encryptedCTR
     return plainT;
 }
