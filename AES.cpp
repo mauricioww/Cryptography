@@ -311,7 +311,7 @@ uint8_t* AES::Decrypt_CBC(uint8_t *cipherT, uint8_t *key, uint8_t *iv, uint32_t 
     memcpy(aux, iv, 16);
     for(uint32_t i = 0; i < len; i += 16){
         Decrypt(cipherT + i, plainT + i, key);
-        xorChunks(plainT + i, aux, 17);
+        xorChunks(plainT + i, aux, 16);
         memcpy(aux, cipherT + i, 16);
     }
     delete[] aux;

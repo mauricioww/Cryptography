@@ -59,3 +59,18 @@ void Handler::close(){
     delete[] auxBuffer;
     delete[] realBuffer;
 } 
+
+uint8_t *Handler::getAll(){
+    auxBuffer2 = new char[length];
+    realBuffer2 = new uint8_t[length];
+    SOURCE.read(auxBuffer2, length);
+    memcpy(realBuffer2, auxBuffer2, length);
+    return realBuffer2;
+}
+
+void Handler::writeAll(uint8_t *txt, uint32_t len){
+    auxBuffer2 = new char[len];
+    realBuffer2 = new uint8_t[len];
+    memcpy(auxBuffer2, txt, len);
+    DESTINY.write(auxBuffer2, len);
+}
