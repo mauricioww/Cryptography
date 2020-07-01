@@ -17,7 +17,7 @@ class Library{
         ofstream DESTINY;
         uint32_t length;
         uint32_t pad;
-        uint8_t byteBuffer;
+        uint8_t *byteBuffer;
         char *charBuffer;
         const char* name;
     public:

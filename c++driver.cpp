@@ -17,6 +17,9 @@ JNIEXPORT jstring JNICALL Java_javaDriver_Compute(JNIEnv *env, jobject thisObj, 
     const char *DESTINY = env->GetStringUTFChars(destiny, NULL);
     const char *EXT = env->GetStringUTFChars(ext, NULL);
     ECB(SOURCE, DESTINY, EXT);
+    CBC(SOURCE, DESTINY, EXT);
+    CFB(SOURCE, DESTINY, EXT);
+    OFB(SOURCE, DESTINY, EXT);
     char mssg[] = "Finished";
     return env->NewStringUTF(mssg);
 }

@@ -7,13 +7,17 @@ Library::Library(const char *src, const char *mdd, const char *dst){
     DESTINY.open(dst, ofstream::binary);
 
     SOURCE.seekg(0, SOURCE.end);
-    length = SOURCE.tellg(), pad = (len % 16) ? (len/16 + 1) * 16 : len;
+    length = SOURCE.tellg(), pad = (length%16) ? (length/16 + 1) * 16 : length;
     SOURCE.seekg(0, SOURCE.beg);    
+
+    byteBuffer = new uint8_t[pad];
+    charBuffer = new char[pad];
+    
 }
 
-uint8_t *Library::get_itinial_bytes(){
-    byteBuffer = new uint8_t[length];
-    charBuffer = new char[length];
+uint8_t *Library::get_initial_bytes(){
+    // byteBuffer = new uint8_t[length];
+    // charBuffer = new char[length];
     SOURCE.read(charBuffer, length);
     memcpy(byteBuffer, charBuffer, length);
     return byteBuffer;
@@ -24,7 +28,7 @@ uint32_t Library::getLen(){
 }
 
 void Library::write_middle_bytes(uint8_t *bytes){
-    charBuffer = new char[pad];
+    // charBuffer = new char[pad];
     memcpy(charBuffer, bytes, pad);
     MIDDLE1.write(charBuffer, pad);
     // MIDDLE.seekg(0, MIDDLE.beg); // rewind
@@ -33,24 +37,24 @@ void Library::write_middle_bytes(uint8_t *bytes){
 
 uint8_t *Library::get_middle_bytes(){
     MIDDLE2.open(name, ifstream::binary);
-    byteBuffer = new uint8_t[pad];
-    charBuffer = new char[pad];
+    // byteBuffer = new uint8_t[pad];
+    // charBuffer = new char[pad];
     SOURCE.read(charBuffer, pad);
     memcpy(byteBuffer, charBuffer, pad);
-    MIDDLE2.close()
+    MIDDLE2.close();
     return byteBuffer;
 }
 
 void Library::write_final_bytes(uint8_t *bytes){
-    charBuffer = new char[len];
-    memcpy(charBuffer, bytes, len);
-    DESTINY.write(charBuffer);
+    // charBuffer = new char[length];
+    memcpy(charBuffer, bytes, length);
+    DESTINY.write(charBuffer, length);
 }
 
 void Library::close(){
     delete[] charBuffer;
     delete[] byteBuffer;
     SOURCE.close();
-    MIDDLE.close();
+    // MIDDLE.close();
     DESTINY.close();
 }

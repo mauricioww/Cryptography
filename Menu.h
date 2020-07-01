@@ -1,4 +1,4 @@
-#include "Handler.h"
+// #include "Handler.h"
 #include "Library.h"
 #include "AES.h"
     /*            WRAPPER FOR ALL THE MODE OPERATIONS                 */
@@ -25,16 +25,6 @@ char *cipherName(const char *name, const char *mode, const char *ext){
     return newName;
 }
 
-/*
-        @input = mode of operation, file extension
-        @output = "verify_MODE.EXT"
-*/
-char *verifyName(const char* mode, const char* ext){
-    char *verName = new char[strlen(mode) + strlen(ext) + 16];
-    sprintf(verName, "./files/verify_%s.%s", mode, ext);
-    return verName;
-}
-
 void ECB(const char *F1, const char *F2, const char *ext){
     const char *CIPHERTEXT = cipherName(F2, "ECB", ext);
     const char *verify = "./files/verify_ECB.class";
@@ -49,112 +39,33 @@ void ECB(const char *F1, const char *F2, const char *ext){
     uint8_t *ciphertextMDD = handler.get_middle_bytes();
     uint8_t *plaintextMDD = cipher.Decrypt_ECB(ciphertextMDD, key, handler.getLen());
 
+    // printf("\n inverse %s \n", plaintextMDD);
+
     handler.write_final_bytes(plaintextMDD);
 
     handler.close();
 
-    // ifstream SRC(F1, ifstream::binary);
-    // SRC.seekg(0, SRC.end);
-    // int len = SRC.tellg(), pad = (len % 16) ? (len/16 + 1) * 16 : len;
-    // SRC.seekg(0, SRC.beg);
-    // char *plainTEXT = new char[len], *cipherTEXT = new char[pad];
-    // SRC.read(plainTEXT, len);
-    // SRC.close(); 
-    // uint8_t *bytes1 = new uint8_t[len];
-    // memcpy(bytes1, plainTEXT, len);
-    // uint8_t *CIPHER = cipher.Encrypt_ECB(bytes1, key, len);
-    // memcpy(cipherTEXT, CIPHER, pad);
-
-    // ofstream WRITER(CIPHERTEXT, ifstream::binary);
-    // WRITER.write(cipherTEXT, pad);
-    // WRITER.close();
-
-    // ifstream READER(CIPHERTEXT, ifstream::binary);
-    // char *noise = new char[pad];
-    // READER.read(noise, pad);
-    // READER.close();
-    // uint8_t *bytes2 = new uint8_t[pad];
-    // memcpy(bytes2, noise, pad);
-
-    // uint8_t *inverse = cipher.Decrypt_ECB(bytes2, key, len);
-    // bzero(plainTEXT, len);
-    // memcpy(plainTEXT, inverse, len);
-    // ofstream FINAL(verify, ifstream::binary);
-    // FINAL.write(plainTEXT, len);
-    // FINAL.close();
-
-    // Handler first(F1, CIPHERTEXT);
-    
-    // while(first.canExtract()){
-    //     first.extract();
-    //     uint8_t *out = cipher.Encrypt_ECB(first.getBuffer(), key, first.getChunk());
-    //     // printf("\n Plain text: |%s| \t <---> \t CipherText: |%s|",  first.getBuffer(), out);
-    //     first.drop(out, 16);
-    // }
-    // first.close();
-    // const char *verify = "./files/verify_ECB.class";
-    // Handler second(CIPHERTEXT, verify);
-    // while(second.canExtract()){
-    //     second.extract();
-    //     uint8_t *out = cipher.Decrypt_ECB(second.getBuffer(), key, second.getChunk() );
-    //     // printf("\n Plain text: |%s| \t <---> \t CipherText: |%s|",  second.getBuffer(), out);
-    //     second.drop(out, second.getChunk());
-    // }
-
-    // second.close();
 }
 
 void CBC(const char *F1, const char *F2, const char *ext){
     const char *CIPHERTEXT = cipherName(F2, "CBC", ext);
     const char *verify = "./files/verify_CBC.class";
 
-    ifstream SRC(F1, ifstream::binary);
-    SRC.seekg(0, SRC.end);
-    int len = SRC.tellg(), pad = (len % 16) ? (len/16 + 1) * 16 : len;
-    SRC.seekg(0, SRC.beg);
-    char *plainTEXT = new char[len], *cipherTEXT = new char[pad];
-    SRC.read(plainTEXT, len);
-    SRC.close(); 
-    uint8_t *bytes1 = new uint8_t[len];
-    memcpy(bytes1, plainTEXT, len);
-    uint8_t *CIPHER = cipher.Encrypt_CFB(bytes1, key, iv, len);
-    memcpy(cipherTEXT, CIPHER, pad);
+    Library handler(F1, CIPHERTEXT, verify);
 
-    ofstream WRITER(CIPHERTEXT, ifstream::binary);
-    WRITER.write(cipherTEXT, pad);
-    WRITER.close();
+    uint8_t *plaintextSRC = handler.get_initial_bytes();
+    uint8_t *ciphertextSRC = cipher.Encrypt_CBC(plaintextSRC, key, handler.getLen());
 
-    ifstream READER(CIPHERTEXT, ifstream::binary);
-    char *noise = new char[pad];
-    READER.read(noise, pad);
-    READER.close();
-    uint8_t *bytes2 = new uint8_t[pad];
-    memcpy(bytes2, noise, pad);
+    handler.write_middle_bytes(ciphertextSRC);
 
-    uint8_t *inverse = cipher.Decrypt_CFB(bytes2, key, iv, len);
-    bzero(plainTEXT, len);
-    memcpy(plainTEXT, inverse, len);
-    ofstream FINAL(verify, ifstream::binary);
-    FINAL.write(plainTEXT, len);
-    FINAL.close();
-    
-    // Handler first(F1, CIPHERTEXT);
-    // while(first.canExtract()){
-    //     first.extract();
-    //     uint8_t *out = cipher.Encrypt_CBC(first.getBuffer(), key, iv, first.getChunk());
-    //     // printf("\n Plain text: |%s| \t <---> \t CipherText: |%s|",  first.getBuffer(), out);
-    //     first.drop(out, 16);
-    // }
-    // first.close();
-    // const char *verify = "./files/verify_CBC.class";
-    // Handler second(CIPHERTEXT, verify   );
-    // while(second.canExtract()){
-    //     second.extract();
-    //     uint8_t *out = cipher.Decrypt_CBC(second.getBuffer(), key, iv, second.getChunk() );
-    //     // printf("\n Plain text: |%s| \t <---> \t CipherText: |%s|",  second.getBuffer(), out);
-    //     second.drop(out, second.getChunk());
-    // }
-    // second.close();
+    uint8_t *ciphertextMDD = handler.get_middle_bytes();
+    uint8_t *plaintextMDD = cipher.Decrypt_CBC(ciphertextMDD, key, handler.getLen());
+
+    // printf("\n inverse %s \n", plaintextMDD);
+
+    handler.write_final_bytes(plaintextMDD);
+
+    handler.close();
 }
 
 void CFB(const char *F1, const char *F2, const char *ext){
@@ -162,97 +73,42 @@ void CFB(const char *F1, const char *F2, const char *ext){
 
     const char *verify = "./files/verify_CFB.class";
 
-    // Handler first(F1, CIPHERTEXT);
+    Library handler(F1, CIPHERTEXT, verify);
 
-    // uint32_t len = first.getLength(), pad = (len % 16) ? (len/16 + 1) * 16 : len;
+    uint8_t *plaintextSRC = handler.get_initial_bytes();
+    uint8_t *ciphertextSRC = cipher.Encrypt_CFB(plaintextSRC, key, handler.getLen());
 
-    // uint8_t *buffer1 = first.getAll();
+    handler.write_middle_bytes(ciphertextSRC);
 
-    // uint8_t *cipherText = cipher.Encrypt_CFB(buffer1, key, iv, len);
+    uint8_t *ciphertextMDD = handler.get_middle_bytes();
+    uint8_t *plaintextMDD = cipher.Decrypt_CFB(ciphertextMDD, key, handler.getLen());
 
-    // first.writeAll(cipherText, pad); // check
-    
-    // first.close();
+    // printf("\n inverse %s \n", plaintextMDD);
 
+    handler.write_final_bytes(plaintextMDD);
 
-    // Handler second(CIPHERTEXT, verify);
-
-    // uint8_t *buffer2 = second.getAll();
-
-    // uint8_t *plainText = cipher.Decrypt_CFB(buffer2, key, iv, len);
-
-    // second.writeAll(plainText, len);
-
-    // second.close();
-
-
-    ifstream SRC(F1, ifstream::binary);
-    SRC.seekg(0, SRC.end);
-    int len = SRC.tellg(), pad = (len % 16) ? (len/16 + 1) * 16 : len;
-    SRC.seekg(0, SRC.beg);
-    char *plainTEXT = new char[len], *cipherTEXT = new char[pad];
-    SRC.read(plainTEXT, len);
-    SRC.close(); 
-    // int pad = (len % 16) ? (len/16 + 1) * 16 : len;
-    // printf("All \n %s", all);
-    uint8_t *bytes1 = new uint8_t[len];
-    memcpy(bytes1, plainTEXT, len);
-    uint8_t *CIPHER = cipher.Encrypt_CFB(bytes1, key, iv, len);
-    memcpy(cipherTEXT, CIPHER, pad);
-
-    ofstream WRITER(CIPHERTEXT, ifstream::binary);
-    WRITER.write(cipherTEXT, pad);
-    WRITER.close();
-
-    ifstream READER(CIPHERTEXT, ifstream::binary);
-    char *noise = new char[pad];
-    READER.read(noise, pad);
-    READER.close();
-    uint8_t *bytes2 = new uint8_t[pad];
-    memcpy(bytes2, noise, pad);
-
-    uint8_t *inverse = cipher.Decrypt_CFB(bytes2, key, iv, len);
-    bzero(plainTEXT, len);
-    memcpy(plainTEXT, inverse, len);
-    ofstream FINAL(verify, ifstream::binary);
-    FINAL.write(plainTEXT, len);
-    FINAL.close();
-    
+    handler.close();    
 }
 
 void OFB(const char *F1, const char *F2, const char *ext){
     const char *CIPHERTEXT = cipherName(F2, "OFB", ext);
     const char *verify = "./files/verify_OFB.class";
 
-    ifstream SRC(F1, ifstream::binary);
-    SRC.seekg(0, SRC.end);
-    int len = SRC.tellg(), pad = (len % 16) ? (len/16 + 1) * 16 : len;
-    SRC.seekg(0, SRC.beg);
-    char *plainTEXT = new char[len], *cipherTEXT = new char[pad];
-    SRC.read(plainTEXT, len);
-    SRC.close(); 
-    uint8_t *bytes1 = new uint8_t[len];
-    memcpy(bytes1, plainTEXT, len);
-    uint8_t *CIPHER = cipher.Encrypt_CFB(bytes1, key, iv, len);
-    memcpy(cipherTEXT, CIPHER, pad);
+    Library handler(F1, CIPHERTEXT, verify);
 
-    ofstream WRITER(CIPHERTEXT, ifstream::binary);
-    WRITER.write(cipherTEXT, pad);
-    WRITER.close();
+    uint8_t *plaintextSRC = handler.get_initial_bytes();
+    uint8_t *ciphertextSRC = cipher.Encrypt_OFB(plaintextSRC, key, handler.getLen());
 
-    ifstream READER(CIPHERTEXT, ifstream::binary);
-    char *noise = new char[pad];
-    READER.read(noise, pad);
-    READER.close();
-    uint8_t *bytes2 = new uint8_t[pad];
-    memcpy(bytes2, noise, pad);
+    handler.write_middle_bytes(ciphertextSRC);
 
-    uint8_t *inverse = cipher.Decrypt_CFB(bytes2, key, iv, len);
-    bzero(plainTEXT, len);
-    memcpy(plainTEXT, inverse, len);
-    ofstream FINAL(verify, ifstream::binary);
-    FINAL.write(plainTEXT, len);
-    FINAL.close();
+    uint8_t *ciphertextMDD = handler.get_middle_bytes();
+    uint8_t *plaintextMDD = cipher.Decrypt_OFB(ciphertextMDD, key, handler.getLen());
+
+    // printf("\n inverse %s \n", plaintextMDD);
+
+    handler.write_final_bytes(plaintextMDD);
+
+    handler.close();
 }
 
 void CTR(const char *F1, const char *F2, const char *ext){

@@ -23,8 +23,8 @@ javaDriver.h: javaDriver.java
 javaDriver.class:
 	javac javaDriver.java
 
-libmiddleware.so: c++driver.cpp Handler.cpp AES.cpp javaDriver.h Menu.h Library.h
-	g++ -Wall -fPIC $(PATH1) $(PATH2) $< Handler.cpp AES.cpp -shared -o $@
+libmiddleware.so: c++driver.cpp Handler.cpp AES.cpp javaDriver.h Menu.h Library.cpp
+	g++ -Wall -fPIC $(PATH1) $(PATH2) $< Handler.cpp AES.cpp Library.cpp -shared -o $@
 
 # plain.class: plain.java
 # 	javac plain.java
