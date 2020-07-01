@@ -1,7 +1,8 @@
-// #include "Handler.h"
 #include "Library.h"
 #include "AES.h"
+
     /*            WRAPPER FOR ALL THE MODE OPERATIONS                 */
+
 AES cipher(128);
 
 uint8_t *key = new uint8_t[16]{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -42,9 +43,7 @@ void ECB(const char *F1, const char *F2, const char *ext){
     // printf("\n inverse %s \n", plaintextMDD);
 
     handler.write_final_bytes(plaintextMDD);
-
     handler.close();
-
 }
 
 void CBC(const char *F1, const char *F2, const char *ext){
@@ -54,17 +53,16 @@ void CBC(const char *F1, const char *F2, const char *ext){
     Library handler(F1, CIPHERTEXT, verify);
 
     uint8_t *plaintextSRC = handler.get_initial_bytes();
-    uint8_t *ciphertextSRC = cipher.Encrypt_CBC(plaintextSRC, key, handler.getLen());
+    uint8_t *ciphertextSRC = cipher.Encrypt_CBC(plaintextSRC, key, iv, handler.getLen());
 
     handler.write_middle_bytes(ciphertextSRC);
 
     uint8_t *ciphertextMDD = handler.get_middle_bytes();
-    uint8_t *plaintextMDD = cipher.Decrypt_CBC(ciphertextMDD, key, handler.getLen());
+    uint8_t *plaintextMDD = cipher.Decrypt_CBC(ciphertextMDD, key, iv, handler.getLen());
 
     // printf("\n inverse %s \n", plaintextMDD);
 
     handler.write_final_bytes(plaintextMDD);
-
     handler.close();
 }
 
@@ -76,17 +74,16 @@ void CFB(const char *F1, const char *F2, const char *ext){
     Library handler(F1, CIPHERTEXT, verify);
 
     uint8_t *plaintextSRC = handler.get_initial_bytes();
-    uint8_t *ciphertextSRC = cipher.Encrypt_CFB(plaintextSRC, key, handler.getLen());
+    uint8_t *ciphertextSRC = cipher.Encrypt_CFB(plaintextSRC, key, iv, handler.getLen());
 
     handler.write_middle_bytes(ciphertextSRC);
 
     uint8_t *ciphertextMDD = handler.get_middle_bytes();
-    uint8_t *plaintextMDD = cipher.Decrypt_CFB(ciphertextMDD, key, handler.getLen());
+    uint8_t *plaintextMDD = cipher.Decrypt_CFB(ciphertextMDD, key, iv, handler.getLen());
 
     // printf("\n inverse %s \n", plaintextMDD);
 
     handler.write_final_bytes(plaintextMDD);
-
     handler.close();    
 }
 
@@ -97,70 +94,35 @@ void OFB(const char *F1, const char *F2, const char *ext){
     Library handler(F1, CIPHERTEXT, verify);
 
     uint8_t *plaintextSRC = handler.get_initial_bytes();
-    uint8_t *ciphertextSRC = cipher.Encrypt_OFB(plaintextSRC, key, handler.getLen());
+    uint8_t *ciphertextSRC = cipher.Encrypt_OFB(plaintextSRC, key, iv, handler.getLen());
 
     handler.write_middle_bytes(ciphertextSRC);
 
     uint8_t *ciphertextMDD = handler.get_middle_bytes();
-    uint8_t *plaintextMDD = cipher.Decrypt_OFB(ciphertextMDD, key, handler.getLen());
+    uint8_t *plaintextMDD = cipher.Decrypt_OFB(ciphertextMDD, key, iv, handler.getLen());
 
     // printf("\n inverse %s \n", plaintextMDD);
 
     handler.write_final_bytes(plaintextMDD);
-
     handler.close();
 }
 
 void CTR(const char *F1, const char *F2, const char *ext){
     const char *CIPHERTEXT = cipherName(F2, "CTR", ext);
-    
     const char *verify = "./files/verify_CTR.class";
 
-    ifstream SRC(F1, ifstream::binary);
-    SRC.seekg(0, SRC.end);
-    int len = SRC.tellg(), pad = (len % 16) ? (len/16 + 1) * 16 : len;
-    SRC.seekg(0, SRC.beg);
-    char *plainTEXT = new char[len], *cipherTEXT = new char[pad];
-    SRC.read(plainTEXT, len);
-    SRC.close(); 
-    uint8_t *bytes1 = new uint8_t[len];
-    memcpy(bytes1, plainTEXT, len);
-    uint8_t *CIPHER = cipher.Encrypt_CTR(bytes1, key, iv, len);
-    memcpy(cipherTEXT, CIPHER, pad);
+    Library handler(F1, CIPHERTEXT, verify);
 
-    ofstream WRITER(CIPHERTEXT, ifstream::binary);
-    WRITER.write(cipherTEXT, pad);
-    WRITER.close();
+    uint8_t *plaintextSRC = handler.get_initial_bytes();
+    uint8_t *ciphertextSRC = cipher.Encrypt_OFB(plaintextSRC, key, iv, handler.getLen());
 
-    ifstream READER(CIPHERTEXT, ifstream::binary);
-    char *noise = new char[pad];
-    READER.read(noise, pad);
-    READER.close();
-    uint8_t *bytes2 = new uint8_t[pad];
-    memcpy(bytes2, noise, pad);
+    handler.write_middle_bytes(ciphertextSRC);
 
-    uint8_t *inverse = cipher.Decrypt_CTR(bytes2, key, iv, len);
-    bzero(plainTEXT, len);
-    memcpy(plainTEXT, inverse, len);
-    ofstream FINAL(verify, ifstream::binary);
-    FINAL.write(plainTEXT, len);
-    FINAL.close();
-    
-    // Handler first(F1, CIPHERTEXT);
-    // while(first.canExtract()){
-    //     first.extract();
-    //     uint8_t *out = cipher.Encrypt_CTR(first.getBuffer(), key, ctr, first.getChunk());
-    //     printf("\n Plain text: |%s| \t <---> \t CipherText: |%s|",  first.getBuffer(), out);
-    //     first.drop(out, 16);
-    // }
-    // puts("\n\n\n\n");
-    // first.close();
-    // Handler second(CIPHERTEXT, verifyName("CTR", ext));
-    // while(second.canExtract()){
-    //     second.extract();
-    //     uint8_t *out = cipher.Decrypt_CTR(second.getBuffer(), key, ctr, second.getChunk() );
-    //     printf("\n Plain text: |%s| \t <---> \t CipherText: |%s|",  second.getBuffer(), out);
-    //     second.drop(out, second.getChunk());
-    // }
-    // second.close();
+    uint8_t *ciphertextMDD = handler.get_middle_bytes();
+    uint8_t *plaintextMDD = cipher.Decrypt_OFB(ciphertextMDD, key, iv, handler.getLen());
+
+    // printf("\n inverse %s \n", plaintextMDD);
+
+    handler.write_final_bytes(plaintextMDD);
+    handler.close();
 }

@@ -1,12 +1,7 @@
 #include "javaDriver.h"
-#include "Handler.h"
-#include "AES.h"
 #include "Menu.h"
-#include "Library.h"
-
  
 using namespace std;
-
 
 /*
         @input = source file without extension, destiny file to be created
@@ -20,6 +15,7 @@ JNIEXPORT jstring JNICALL Java_javaDriver_Compute(JNIEnv *env, jobject thisObj, 
     CBC(SOURCE, DESTINY, EXT);
     CFB(SOURCE, DESTINY, EXT);
     OFB(SOURCE, DESTINY, EXT);
+    CTR(SOURCE, DESTINY, EXT);
     char mssg[] = "Finished";
     return env->NewStringUTF(mssg);
 }

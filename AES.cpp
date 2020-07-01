@@ -403,11 +403,12 @@ uint8_t* AES::Encrypt_CTR(uint8_t *plainT, uint8_t *key, uint8_t *ctr, uint32_t 
 
 uint8_t* AES::Decrypt_CTR(uint8_t *cipherT, uint8_t *key, uint8_t *ctr, uint32_t len){
     uint8_t *plainT = new uint8_t[len];
+    bzero(plainT, len);
     uint8_t *auxCTR = new uint8_t[16];
     uint8_t *encryptedCTR = new uint8_t[16];
     memcpy(auxCTR, ctr, 16);
     for(uint32_t i = 0; i < len; i += 16){
-        Decrypt(auxCTR, encryptedCTR, key);
+        Encrypt(auxCTR, encryptedCTR, key );
         xorChunks(plainT + i, encryptedCTR, 16);
         xorChunks(plainT + i, cipherT + i, 16);
         increment(auxCTR);
